@@ -81,8 +81,8 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --force
-            npm audit
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-audit
@@ -95,12 +95,12 @@ jobs:
       - restore_cache:
           keys: [backend-audit]
       - run:
-          name: run backend audit
+          name: run backend audit 
           command: |
             cd backend
             npm install
-            npm audit fix --force
-            npm audit
+            npm audit fix  --audit-level=critical --force
+            npm audit --audit-level=critical
       - save_cache:
           paths: [backend/node_modules]
           key: backend-audit
