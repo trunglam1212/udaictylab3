@@ -18,5 +18,7 @@
   become: true
   shell: |
     cd /home/ubuntu/web
+    npm i
+    sudo npm install pm2 -g
     pm2 stop default
     pm2 start npm -- start

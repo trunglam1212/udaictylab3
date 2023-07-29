@@ -172,11 +172,18 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Node.js
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            nvm install node
+      - run:
           name: Install dependencies
           command: |
-            apk add nodejs npm
             sudo yum update
-            sudo yum install -y tar gzip nodejs
+            sudo yum install -y tar gzip
       - run:
           name: Get backend url
           command: |
@@ -221,6 +228,7 @@ jobs:
             cd ..
             ## Zip the directory
             tar -C backend -czvf artifact.tar.gz .
+            pwd
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
