@@ -79,7 +79,9 @@ jobs:
       - run:
           name: run frontend audit
           command: |
-            exit 0
+            cd frontend
+            npm install
+            npm audit --audit-level=critical || true
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-audit
@@ -94,7 +96,9 @@ jobs:
       - run:
           name: run backend audit 
           command: |
-            exit 0
+            cd backend
+            npm install
+            npm audit --audit-level=critical || true
       - save_cache:
           paths: [backend/node_modules]
           key: backend-audit
@@ -127,13 +131,38 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            EC2_IP=$(aws ec2 describe-instances --instance-id <instance-id> --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-            echo "backend ansible_host=$EC2_IP ansible_user=ubuntu" >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"\
+                --query 'Reservations[*].Instances[*].PublicIpAddress'\
+                --output text >> .circleci/ansible/inventory.txt
+
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-              
+
+  configure-infrastructure:
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      - checkout
+      - run:  
+          name: Add SSH key fingerprint
+          command: |
+            echo "<EC2 instance IP> ecdsa-sha2-nistp256 <SSH key fingerprint>" >> ~/.ssh/known_hosts
+      # attach workspace
+      - run:
+          name: Install dependencies
+          command: |  
+            # Your code here
+            exit 1
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            exit 1
+      # Here's where you will add some code to rollback on failure                  
 workflows:
   default:
     jobs:
