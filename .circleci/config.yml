@@ -11,8 +11,8 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${parameters.workflow_id}"
-            aws cloudformation delete-stack --stack-name "udapeople-frontend-${parameters.workflow_id}"
+            aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -212,12 +212,8 @@ jobs:
       - run:
           name: Install Node.js
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            nvm install node
-     
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            sudo apt-get install -y nodejs
       - run:
           name: Get backend url
           command: |
