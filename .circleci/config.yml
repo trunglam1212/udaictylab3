@@ -110,8 +110,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=your-tag \
-              --stack-name "your back-end stack name with workflow id" \
-              --parameter-overrides ID="your workflow id"  
+              --stack-name "backend-1234" \
+              --parameter-overrides ID="udapeople-kk1j287dhjppmz441"  
              
       - run:
           name: Ensure front-end infrastructure exist
@@ -119,8 +119,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=your-tag \
-              --stack-name "your front-end stack name with workflow id" \
-              --parameter-overrides ID="your workflow id"  
+              --stack-name "frontend1231451" \
+              --parameter-overrides ID="udapeople-kk1j287dhjppmz441"  
               
 workflows:
   default:
