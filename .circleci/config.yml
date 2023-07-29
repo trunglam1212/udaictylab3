@@ -160,7 +160,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -o StrictHostKeyChecking=no -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure   
   
   deploy-frontend:
@@ -171,7 +171,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            sudo apt-get update
+            sudo apt-get install -y tar gzip ansible awscli node python3
       - run:
           name: Get backend url
           command: |
