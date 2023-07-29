@@ -161,8 +161,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure   
   
   deploy-frontend:
