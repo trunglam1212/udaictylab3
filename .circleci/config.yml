@@ -174,8 +174,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum update
-            yum install -y tar gzip ansible awscli nodejs python3 npm
+            apk add nodejs npm
+            sudo yum update
+            sudo yum install -y tar gzip nodejs
       - run:
           name: Get backend url
           command: |
@@ -212,7 +213,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y tar gzip ansible awscli nodejs npm
       - run:
-          name: Install dependencies
+          name: Deploy backend
           command: |
             cd backend
             npm i
@@ -224,12 +225,6 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
-      - run:
-          name: Deploy backend
-          command: |
-            npm install
-            pm2 stop default
-            pm2 start npm -- start
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
