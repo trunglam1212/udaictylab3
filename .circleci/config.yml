@@ -135,6 +135,7 @@ jobs:
                 --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"\
                 --query 'Reservations[*].Instances[*].PublicIpAddress'\
                 --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
           root: ~/
@@ -160,7 +161,8 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -o StrictHostKeyChecking=no -i inventory.txt configure-server.yml
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure   
   
   deploy-frontend:
