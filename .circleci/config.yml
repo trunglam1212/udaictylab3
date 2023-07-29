@@ -1,5 +1,5 @@
 version: 2.1  
- 
+
 jobs:
   build-frontend:
     docker:
@@ -99,7 +99,7 @@ jobs:
           paths: [backend/node_modules]
           key: backend-audit
 
- deploy-infrastructure:
+  deploy-infrastructure:
     docker:
       - image: amazon/aws-cli:latest
     steps:
