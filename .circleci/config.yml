@@ -1,5 +1,4 @@
-version: 2.1
- 
+version: 2.1   
 jobs:
   build-frontend:
     docker:
@@ -79,13 +78,7 @@ jobs:
       - run:
           name: run frontend audit
           command: |
-            cd frontend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
-            if [ "${CIRCLE_BRANCH}" = "develop" ]; then
-              curl -X POST -H 'Content-type: application/json' --data '{"text":"Pipeline build failed!"}' "https://slack.com/api/chat.postMessage?token=${xoxe.xoxp-1-Mi0yLTU2MzUxNjI0NjI5MzAtNTYzMjIzMDAwMjMyNS01NjQ3ODA1NzAwODgxLTU2MzIyNDAyMTA4MjEtNmIxYzA0MWFhYTI1MmNmYTkzYWM5OTJmNTMyMzU4YzM1MDdmYzMyNjE2MDNmNjY1YjJlN2RiYTliN2QyZDg0Zg}&channel=dev"
-            fi
+            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-audit
@@ -100,14 +93,34 @@ jobs:
       - run:
           name: run backend audit 
           command: |
-            cd backend
-            npm install
-            npm audit fix  --audit-level=critical --force
-            npm audit --audit-level=critical
+            exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-audit
 
+ deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli:latest
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=your-tag \
+              --stack-name "your back-end stack name with workflow id" \
+              --parameter-overrides ID="your workflow id"  
+             
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=your-tag \
+              --stack-name "your front-end stack name with workflow id" \
+              --parameter-overrides ID="your workflow id"  
+              
 workflows:
   default:
     jobs:
@@ -121,3 +134,5 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
