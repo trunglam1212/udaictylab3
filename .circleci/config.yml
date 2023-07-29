@@ -268,14 +268,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout 
-      - restore_cache:
-          keys: [backend-audit]
       - run:
           name: Run migrations
           command: |
             cd backend
             npm i
-            npm audit fix
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
