@@ -8,5 +8,10 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+  pre_tasks:
+    - name: "update apt"
+      command: sudo apt-get update
+    - name: "install python for Ansible."
+      command: sudo apt-get install -y nodejs
   roles:
     - deploy
