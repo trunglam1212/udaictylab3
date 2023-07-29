@@ -140,6 +140,9 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-enviroment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+          event: on_fail
 
   configure-infrastructure:
     docker:
@@ -150,18 +153,24 @@ jobs:
       - run:  
           name: Add SSH key fingerprint
           command: |
-            echo "<EC2 instance IP> ecdsa-sha2-nistp256 <SSH key fingerprint>" >> ~/.ssh/known_hosts
-      # attach workspace
+            EC2_IP=$(aws ec2 describe-instances \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"\
+                --query 'Reservations[*].Instances[*].PublicIpAddress'\
+                --output text)
+            ssh-keyscan -H ${EC2_IP} >> ~/.ssh/known_hosts
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |  
-            # Your code here
-            exit 1
+            npm i
+            yum -y install tar gzip
+            pip install ansible
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure                  
 workflows:
   default:
@@ -178,3 +187,5 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
