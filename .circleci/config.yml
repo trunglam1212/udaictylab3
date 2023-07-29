@@ -174,7 +174,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip ansible awscli node python3
+            yum install -y tar gzip ansible awscli node python3 npm
       - run:
           name: Get backend url
           command: |
@@ -208,7 +208,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt-get install -y tar gzip ansible awscli node
+            sudo apt-get update
+            sudo apt-get install -y tar gzip ansible awscli node npm
+      - run:
+          name: Install dependencies
+          command: |
             cd backend
             npm i
             npm run build
@@ -218,7 +222,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
       - run:
           name: Deploy backend
           command: |
@@ -305,3 +309,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
