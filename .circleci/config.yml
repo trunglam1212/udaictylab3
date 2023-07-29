@@ -1,6 +1,38 @@
 version: 2.1  
 
 jobs:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            echo "Destroying environment: << parameters.workflow_id >> "
+  
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string    
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            SUCCESS=$(curl --insecure  https://kvdb.io/MH6NeF9tCh3uP1DufQrafj/migration_<< parameters.workflow_id >>)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi  
+
+
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -172,20 +204,19 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Node.js
+          name: Install dependencies
           command: |
             yum update
-            yum install -y tar
+            yum install -y tar gzip
+      - run:
+          name: Install Node.js
+          command: |
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             nvm install node
-      - run:
-          name: Install dependencies
-          command: |
-            yum update
-            yum install -y tar gzip
+     
       - run:
           name: Get backend url
           command: |
@@ -271,7 +302,6 @@ jobs:
             else
               exit 1
             fi
-      # Here's where you will add some code to rollback on failure  
 
   run-migrations:
     docker:
