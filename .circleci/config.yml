@@ -204,34 +204,34 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      # Cài đặt Python
       - run:
-          name: Install Python
+          name: Install Python 3.8
           command: |
-            apt-get update
-            apt-get install -y python3
+            sudo apt-get update
+            sudo apt-get install -y python3.8 python3-pip
 
       # Cài đặt Ansible
       - run:
           name: Install Ansible
           command: |
-            pip3 install ansible
+            sudo apt-get update
+            sudo apt-get install -y ansible
 
       # Cài đặt NPM và Node.js
       - run:
           name: Install NPM and Node.js
           command: |
-            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-            apt-get install -y nodejs
+            curl -sL https://deb.nodesource.com/setup_14.x| sudo -E bash -
+            sudo apt-get install -y nodejs
 
       # Cài đặt AWS CLI
       - run:
           name: Install AWS CLI
           command: |
-            apt-get install -y unzip
+            sudo apt-get install -y unzip
             curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            ./aws/install
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
@@ -277,13 +277,6 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y ansible
-      # # Cài đặt Ansible
-      # - run:
-      #     name: Install Ansible
-      #     command: |
-      #       pip3 install --upgrade pip
-      #       pip3 install setuptools-rust
-      #       pip3 install ansible
 
       # Cài đặt NPM và Node.js
       - run:
@@ -428,25 +421,25 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend    
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      - deploy-backend
-          # requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - build-frontend
+      - build-backend    
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
