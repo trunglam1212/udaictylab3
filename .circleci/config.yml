@@ -13,6 +13,7 @@ commands:
             echo "Destroying environment: << parameters.workflow_id >> "
             aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
+            aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -409,7 +410,7 @@ jobs:
 
   cleanup:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli:latest
     steps:
       - checkout
       - run:
@@ -460,3 +461,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
