@@ -62,9 +62,6 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            cd backend
-            npm install
-            npm run build
             echo ENVIROMENT=development > "backend/.env"      
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"      
@@ -76,7 +73,11 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"      
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"     
             echo "CONTENT OF backend/.env"      
-            cat backend/.env      
+            cat backend/.env    
+            cd backend
+            npm install
+            npm run build
+              
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
