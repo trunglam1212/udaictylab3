@@ -62,18 +62,6 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            echo ENVIROMENT=development > "backend/.env"      
-            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"      
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"      
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"    
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"      
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"      
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"            
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"      
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"     
-            echo "CONTENT OF backend/.env"      
-            cat backend/.env    
             cd backend
             npm install
             npm run build
@@ -435,9 +423,9 @@ jobs:
     docker:
       - image: amazon/aws-cli:latest
     steps:
-      - checkout
+      - checkout          
       - run:
-          name: Get old stack workflow id
+          name: Remove old stacks and files
           command: |
             export OldWorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
@@ -448,11 +436,9 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"  
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
             then
+              cat ${OldWorkflowID}
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
