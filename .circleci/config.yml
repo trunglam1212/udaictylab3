@@ -353,7 +353,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             # Perform the smoke test
-            if curl "${API_URL}/api/status" | grep "ok"; then
+            if curl "${API_URL}/api/status" | grep "fail"; then
               exit 0
             else
               exit 1
@@ -369,10 +369,10 @@ jobs:
             else
               exit 1
             fi
-      # - revert-migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   run-migrations:
     docker:
