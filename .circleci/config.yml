@@ -429,7 +429,7 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
             export subOldWorkFlowId = "${OldWorkflowID#*-}"
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${subOldWorkFlowId}" ]]
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
               cat ${subOldWorkFlowId}
               aws s3 rm "s3://udapeople-${subOldWorkFlowId}" --recursive
