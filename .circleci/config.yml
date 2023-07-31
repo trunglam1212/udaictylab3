@@ -426,7 +426,7 @@ jobs:
             export OldWorkflowID=$(cat .circleci/files/oldStack.txt)
             ## Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-             --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+             --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}" 
             if [[ "udapeople-backend-${OldWorkflowID}" =~ "${STACKS[@]}" ]]
             then
