@@ -11,9 +11,9 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
-            # aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
-            # aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
-            # aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
+            aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
+            aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -439,53 +439,53 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend    
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: master
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [configure-infrastructure]
-          filters:
-            branches:
-              only: master
-      - deploy-frontend:
-          requires: [run-migrations]
-          filters:
-            branches:
-              only: master
-      - deploy-backend:
-          requires: [run-migrations]
-          filters:
-            branches:
-              only: master
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-          filters:
-            branches:
-              only: master
-      - cloudfront-update:
-          requires: [smoke-test]
-          filters:
-            branches:
-              only: master
-      - cleanup:
+      # - build-frontend
+      # - build-backend    
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      #     filters:
+      #       branches:
+      #         only: master
+      - cleanup
           requires: [cloudfront-update]
           filters:
             branches:
-              only: master
+              # only: master
