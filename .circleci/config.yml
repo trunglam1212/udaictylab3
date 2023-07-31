@@ -27,7 +27,7 @@ commands:
           command: |
             SUCCESS=$(curl --insecure  https://kvdb.io/MH6NeF9tCh3uP1DufQrafj/migration_<< parameters.workflow_id >>)
             # Logic for reverting the database state
-            if (( $SUCCESS == 1 ));
+            if [[ "${SUCCESS}" == "1" ]];
             then
               cd ~/project/backend
               npm install
@@ -403,10 +403,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: |
-            exit 0
-      - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
@@ -432,17 +428,15 @@ jobs:
               --no-paginate --output text)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            ## Fetch the stack names          
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}"  
-            if [[ "${OldWorkflowID}" =~ "${STACKS[@]}"  ]]
+  
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
               cat ${OldWorkflowID}
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            fi              
+            fi  
+
 workflows:
   default:
     jobs:
@@ -454,21 +448,46 @@ workflows:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
+      
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: master
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+          filters:
+            branches:
+              only: master
       - run-migrations:
           requires: [configure-infrastructure]
+          filters:
+            branches:
+              only: master
       - deploy-frontend:
           requires: [run-migrations]
+          filters:
+            branches:
+              only: master
       - deploy-backend:
           requires: [run-migrations]
+          filters:
+            branches:
+              only: master
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+          filters:
+            branches:
+              only: master
       - cleanup:
-          requires: [cloudfront-update]
+          requires: [smoke-test]
+          filters:
+            branches:
+              only: master
+      - cloudfront-update:
+          requires: [cleanup]
+          filters:
+            branches:
+              only: master
