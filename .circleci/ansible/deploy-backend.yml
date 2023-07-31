@@ -3,10 +3,31 @@
 - name: "configuration play." 
   hosts: web
   user: ubuntu
+  become_method: sudo
+  become_user: root  
   gather_facts: false
+  become: yes
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+  pre_tasks:
+    - name: Update package cache and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Node.js and npm
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Install PM2 globally using npm
+      npm:
+        name: pm2
+        global: yes
+
   roles:
     - deploy
