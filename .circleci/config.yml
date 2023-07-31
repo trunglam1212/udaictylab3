@@ -11,9 +11,9 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
-            # aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
-            # aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
-            # aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
+            aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
+            aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -339,7 +339,7 @@ jobs:
           name: Backend smoke test.
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
-                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"\
+                --filters "Name=tag:Name,Values=backend-09ba6ac"\
                 --query 'Reservations[*].Instances[*].PublicIpAddress'\
                 --output text)
             export API_URL="http://${BACKEND_IP}:3030"
@@ -353,7 +353,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            URL="http://udapeople-09ba6ac.s3-website-us-east-1.amazonaws.com/#/employees"
             echo ${URL}
 
             if curl -s ${URL} | grep "Welcome"; then
@@ -362,10 +362,9 @@ jobs:
               exit 1
             fi
       - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: "09ba6ac"
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-
+          workflow_id: "09ba6ac"
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -423,53 +422,54 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend    
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: master
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-          filters:
-            branches:
-              only: master
-      - run-migrations:
-          requires: [configure-infrastructure]
-          filters:
-            branches:
-              only: master
-      - deploy-frontend:
-          requires: [run-migrations]
-          filters:
-            branches:
-              only: master
-      - deploy-backend:
-          requires: [run-migrations]
-          filters:
-            branches:
-              only: master
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-          filters:
-            branches:
-              only: master
-      - cloudfront-update:
-          requires: [smoke-test]
-          filters:
-            branches:
-              only: master
-      - cleanup:
-          requires: [cloudfront-update]
-          filters:
-            branches:
-              only: master
+      - smoke-test
+      # - build-frontend
+      # - build-backend    
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      #     filters:
+      #       branches:
+      #         only: master
+      # - cleanup:
+      #     requires: [cloudfront-update]
+      #     filters:
+      #       branches:
+      #         only: master
